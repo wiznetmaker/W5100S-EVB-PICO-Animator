@@ -99,10 +99,6 @@ This is written in CircuitPython. If you're looking for the necessary libraries,
 > Source IU image borrowed from the official Yidam Entertainment.
 
 
-## Appreciate the Effort?
-
-If this project adds value or piques your interest, please give it a star 🌟 on GitHub!
-
 
 ## Developers' Corner
 
