@@ -88,6 +88,9 @@ tfc.registerOp('MirrorPad', mirrorPad);
 
 const generate = async (model, long_side_scale_size, img, output) => {
     console.log("Generation start")
+
+    img.crossOrigin = "anonymous";  // 이 줄을 추가합니다.
+
     let img_tensor = tf.browser.fromPixels(img);
     let scaled_img_tensor;
     console.log("Original image size:", img_tensor.shape);

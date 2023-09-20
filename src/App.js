@@ -9,14 +9,19 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            uploadedImageURL: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-            uploaded: false,
+            uploadedImageURL: "http://192.168.0.6/16",
+            uploaded: true, // 이 부분을 true로 변경
             fp16: 0,
             resize: "none",
             generationStatus: 0,
             updateGenerationProgressInterval: -1,
             bytesUsed: 0
         };
+    }
+    retakeImage = () => {
+        this.setState({
+            uploadedImageURL: "http://192.168.0.6/16"
+        });
     }
 
     onUpload = (e) => {
@@ -77,11 +82,17 @@ class App extends React.Component {
         }
 
         if (success) {
-            this.setState({
-                generationStatus: 2
-            });
+            const canvas = document.getElementById("output");
+            if (canvas) {
+                const generatedImageURL = canvas.toDataURL();
+                this.setState({
+                    generationStatus: 2,
+                    generatedImageURL: generatedImageURL
+                });
+            } else {
+                console.error("Cannot find canvas element with ID 'output'");
+            }
         }
-        
     }
     
     componentWillUnmount = () => {
@@ -93,12 +104,15 @@ class App extends React.Component {
     render () {
         return (
             <div className="app">
-                <Container fluid style={{"display": this.state.generationStatus === 0 ? "block" : "none"}}>
+                <Container fluid>
                     <Row className="margin">
                         <Col/>
-                            <Col xs="12">
-                                <h1 style={{"marginBottom": "20px", textAlign: "center"}}>AnimeGAN.js: Photo Animation for Everyone <a href="https://github.com/TonyLianLong/AnimeGAN.js" style={{"fontSize": "12px"}}>View Source Code</a></h1>
-                            </Col>
+                        <Col xs="12">
+                            <h1 style={{"marginBottom": "20px", textAlign: "center"}}>
+                                W5100S-EVB Pico Animator: Am I the Star of the Animation? 
+                                <a href="https://github.com/dbtjr1103/W5100S-EVB-PICO-Animator" style={{"fontSize": "12px"}}>View Source Code</a>
+                            </h1>
+                        </Col>
                         <Col/>
                     </Row>
                     <Row className="margin">
@@ -107,16 +121,18 @@ class App extends React.Component {
                             <Form>
                                 <Form.File accept="image/*" label={(this.state.uploaded ? "Change the image" : "Upload an image")} onChange={this.onUpload} multiple={false} custom />
                             </Form>
-                            
                         </Col>
                         <Col/>
                     </Row>
                     <Row className="margin">
-                        <Col/>
-                        <Col xs="12" md="8" lg="5" xl="4" style={{textAlign: "center", margin: "20px"}}>
+                        <Col />
+                        <Col xs="12" md="4" lg="3" xl="3" style={{ textAlign: "center", margin: "20px" }}>
                             <img id="uploaded-image" alt="" src={this.state.uploadedImageURL} />
                         </Col>
-                        <Col/>
+                        <Col xs="12" md="4" lg="3" xl="3" style={{ textAlign: "center", margin: "20px" }}>
+                            <canvas id="output"></canvas>
+                        </Col>
+                        <Col />
                     </Row>
                     <Row className="margin">
                         <Col/>
@@ -142,49 +158,18 @@ class App extends React.Component {
                         </Col>
                         <Col/>
                     </Row>
-                </Container>
-
-                <div className="overlay" style={{"display": this.state.generationStatus === 1 ? "block" : "none"}}>
-                
-                    <div style={{"marginTop":"calc( 50vh - 50px )", "height": "100px", "textAlign": "center"}}>
-                        <Container fluid>
-                            <Row>
-                                <Col/>
-                                <Col xs="12" md="8" lg="6" style={{textAlign: "center"}}>
-                                    <ProgressBar now={this.state.generationProgress} style={{"margin": "10px"}} />
-                                    <p>Generating image...</p>
-                                    <p>This may take 15 to 30 seconds depending on your device.</p>
-                                    <p>Memory usage (MB): {this.state.bytesUsed / 1000000} </p>
-                                </Col>
-                                <Col/>
-                            </Row>
-                        </Container>
-                    </div>
+                    <Row className="margin" style={{"display": this.state.generationStatus === 1 ? "block" : "none"}}>
+                        <Col/>
+                        <Col xs="12" md="8" lg="6" style={{textAlign: "center"}}>
+                            <ProgressBar now={this.state.generationProgress} style={{"margin": "10px"}} />
+                            <p>Generating image...</p>
+                            <p>This may take 15 to 30 seconds depending on your device.</p>
+                            <p>Memory usage (MB): {this.state.bytesUsed / 1000000} </p>
+                        </Col>
+                        <Col/>
+                    </Row>
                     
-                </div>
-
-                <div className="overlay" style={{"display": this.state.generationStatus === 2 ? "block" : "none"}}>
-                    <Container fluid>
-                        <Row className="margin">
-                            <Col/>
-                            <Col xs="12" md="8" lg="5" xl="4" style={{textAlign: "center", margin: "20px"}}>
-                                <canvas id="output"></canvas>
-                            </Col>
-                            <Col/>
-                        </Row>
-                        <Row className="margin">
-                            <Col/>
-                            <Col xs="12" md="12" lg="12" xl="10" style={{textAlign: "center", margin: "20px"}}>
-                                <p>If you are on a mobile device, long press to save the image.</p>
-                                <p>If you are on a desktop device, right click to save the image.</p>
-                                <p>If it looks good, you could <a href="https://github.com/TonyLianLong/AnimeGAN.js">give AnimeGAN.js a star <span role="img" aria-label="star">🌟</span> on Github</a>.</p>
-                                <p>AnimeGAN.js uses the trained model from AnimeGAN. If you are interested in how the TensorFlow version of AnimeGAN works, <a href="https://github.com/TachibanaYoshino/AnimeGAN">click here</a></p>
-                                <Button variant="primary" onClick={() => window.location.reload()}>Restart</Button>
-                            </Col>
-                            <Col/>
-                        </Row>
-                    </Container>
-                </div>
+                </Container>
             </div>
         );
     }
